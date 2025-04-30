@@ -1,2 +1,64 @@
-# Ignore all build artifacts
+# ───────────────────────────────
+# Binários e arquivos de build
+# ───────────────────────────────
 **/build/
+**/build*/               # Alternativas de build
+*.elf
+*.bin
+*.hex
+*.uf2
+*.map
+*.srec
+*.exe
+
+# ───────────────────────────────
+# Temporários do CMake/Make
+# ───────────────────────────────
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# ───────────────────────────────
+# VSCode, JetBrains, PyCharm, etc.
+# ───────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+
+# ───────────────────────────────
+# Python / ambiente virtual / cache
+# ───────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env/
+.venv/
+*.env
+*.egg-info/
+
+# ───────────────────────────────
+# Arquivos de configuração gerados
+# ───────────────────────────────
+sdkconfig
+sdkconfig.old
+sdkconfig.defaults
+sdkconfig.ci.test
+*.Zone.Identifier
+
+# ───────────────────────────────
+# Logs e arquivos temporários
+# ───────────────────────────────
+*.log
+*.bak
+*.swp
+*.tmp
+
+# ───────────────────────────────
+# Arquivos do ESP-IDF não versionáveis
+# ───────────────────────────────
+.espressif/
+*.idf.py
+*.launch.json

@@ -159,4 +159,144 @@ Ou acesse diretamente:
 
 ---
 
-Se desejar, posso salvar este conteúdo como um `README.md` ou `doc_setup.md` dentro do seu projeto para referência futura. Deseja isso?
+
+
+
+# Documentação da Configuração do Ambiente ESP-IDF no WSL2
+
+Este documento reúne todas as etapas e ajustes realizados com sucesso para rodar, compilar, flashar e testar Bluetooth num ESP32-WROOM usando o ESP-IDF dentro do WSL2/Ubuntu no Windows 11.
+
+---
+
+## 1. Ambiente WSL2 + VSCode  
+- **Distribuição:** Ubuntu 22.04 rodando sobre WSL2.  
+- **Editor:** Visual Studio Code com a extensão **Espressif IDF**, apontada para a distro WSL.  
+
+---
+
+## 2. Instalação e configuração do ESP-IDF  
+- Clonagem do repositório ESP-IDF na pasta `~/esp/esp-idf`.  
+- Execução de `./install.sh` e `./export.sh` (ou configuração manual de variáveis de ambiente).  
+- Verificado o target com:
+  ```bash
+  idf.py set-target esp32
+  ```
+
+---
+
+## 3. Encaminhamento da porta USB Serial (USBIPD-WIN)  
+Para que o WSL enxergue o conversor USB-UART (CP210x/CH340/FTDI):
+
+1. **No Windows (PowerShell Admin):**  
+   ```powershell
+   winget install --id=usbipd-win.usbipd-win
+   usbipd bind   --busid 2-3 --persist    # 2-3 é o BUSID do CP210x (COM3)
+   ```
+2. **Cada vez que plugar o ESP32:**  
+   ```powershell
+   usbipd attach --wsl --busid 2-3
+   ```
+3. **No WSL/Ubuntu:**  
+   ```bash
+   sudo modprobe cp210x                 # carrega driver, se necessário  
+   dmesg | grep -i cp210x               # confirma attachment  
+   ls /dev/ttyUSB* /dev/ttyACM*         # deve listar /dev/ttyUSB0
+   ```
+
+---
+
+## 4. Permissões de acesso à porta serial  
+```bash
+sudo usermod -aG dialout $USER         # adiciona ao grupo dialout
+# reinicie a sessão WSL
+sudo chmod a+rw /dev/ttyUSB0           # libera leitura/escrita
+```
+
+---
+
+## 5. Fluxo de build / flash / monitor  
+Dentro da pasta do projeto (ex.: `~/esp/som_seguidor/esp32`):
+```bash
+idf.py -p /dev/ttyUSB0 build flash monitor
+```
+- `-p /dev/ttyUSB0` → porta serial correta  
+- `build` → compila o firmware  
+- `flash` → grava no ESP32  
+- `monitor` → abre o terminal serial (115200 bps)
+
+---
+
+## 6. Configuração Bluetooth no menuconfig  
+Execute:
+```bash
+idf.py menuconfig
+```
+Em **Component config → Bluetooth**:
+1. **[ * ] Bluetooth** (habilita o módulo Bluedroid)  
+2. **Host:** “Bluedroid – Dual-mode”  
+3. **Controller:** “Enabled”  
+4. Em **Bluedroid Options**:
+   - **[ * ] Classic Bluetooth**  
+   - **[ * ] Bluetooth Low Energy**  
+   - (deixe os perfis desmarcados se não precisar; o importante é ativar o stack)
+
+---
+
+## 7. Ajuste em `main.c` para Dual-Mode  
+No `main/main.c`, substitua:
+```c
+ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_CLASSIC_BT));
+```
+por:
+```c
+ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BTDM));
+```
+Isso evita o erro `ESP_ERR_INVALID_ARG` e alinha o código ao menuconfig Dual-mode.
+
+---
+
+## 8. Exemplo mínimo de `app_main()`  
+```c
+void app_main(void)
+{
+    // ... inicialização NVS e controller ...
+    ESP_ERROR_CHECK(esp_bt_controller_enable(ESP_BT_MODE_BTDM));
+    ESP_ERROR_CHECK(esp_bluedroid_init());
+    ESP_ERROR_CHECK(esp_bluedroid_enable());
+    ESP_ERROR_CHECK(esp_bt_gap_register_callback(bt_app_gap_cb));
+    ESP_ERROR_CHECK(esp_bt_dev_set_device_name("ESP32_BT_TEST"));
+    ESP_ERROR_CHECK(esp_bt_gap_set_scan_mode(ESP_BT_CONNECTABLE, ESP_BT_GENERAL_DISCOVERABLE));
+    ESP_LOGI(TAG, "Bluetooth discoverable como 'ESP32_BT_TEST'");
+    // Laço simples de teste
+    for (int i = 0; i < 5; ++i) {
+        ESP_LOGI(TAG, "Loop de teste: %d", i);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    ESP_LOGI(TAG, "Teste finalizado");
+}
+```
+
+---
+
+## 9. Saindo do monitor serial  
+- **Ctrl + ]** (padrão do `idf.py monitor`)  
+- Se estiver no Windows Terminal, experimente **Ctrl + Shift +]**  
+- Como último recurso, **Ctrl + C** duas vezes (pode exigir reiniciar o terminal)
+
+---
+
+## ℹ️ Dica Final – Como abrir o VSCode com ESP-IDF corretamente
+
+Para garantir que o VSCode funcione com o ESP-IDF corretamente:
+
+1. Abra o terminal WSL2 (Ubuntu)
+2. Vá até a pasta do projeto:
+   ```bash
+   cd ~/esp/som_seguidor/esp32
+   ```
+3. Execute:
+   ```bash
+   code .
+   ```
+
+Dessa forma, o VSCode herdará as variáveis de ambiente (como `PATH` e `IDF_PATH`) do ESP-IDF e evitará problemas com compiladores errados.
