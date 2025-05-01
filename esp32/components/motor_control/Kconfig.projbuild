@@ -1,0 +1,3 @@
+config MY_LOG_LEVEL
+    int "Log verbosity level"
+    default 3

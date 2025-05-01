@@ -1,8 +1,12 @@
 #include <stdio.h>
-// outros includes que você precisa, mas **não** CMake
+#include "motor_control.h"
 
 void app_main(void)
 {
     printf("Hello from som_seguidor!\n");
-    // aqui você pode chamar APIs de Bluetooth, ou só rodar seu código de som/motores
+    
+    motores_init();
+    mover_frente();
+    vTaskDelay(pdMS_TO_TICKS(2000));
+    parar_motores();
 }
