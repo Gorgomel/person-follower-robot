@@ -2,13 +2,13 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
+static const char *TAG = "motor_control";
+
 void motor_control_test(void){
     #if CONFIG_MY_LOG_LEVEL >= 2
         ESP_LOGI(TAG, "Mensagem de log nível INFO");
     #endif
 }    
-
-static const char *TAG = "MOTOR_CTRL";
 
 #define IN1 26
 #define IN2 27
