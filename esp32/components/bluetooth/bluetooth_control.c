@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "esp_log.h"
 #include "nvs_flash.h"
 
@@ -9,6 +10,7 @@
 #include "esp_spp_api.h"
 
 #include "bluetooth_control.h"
+#include "command_parser.h"
 
 static const char *TAG = "BT_CONTROL";
 
@@ -21,7 +23,31 @@ void esp_bt_gap_cb(esp_bt_gap_cb_event_t event, esp_bt_gap_cb_param_t *param) {
 
 // SPP callback (eventos de conexão/dados)
 void esp_spp_cb(esp_spp_cb_event_t event, esp_spp_cb_param_t *param) {
-    ESP_LOGI(TAG, "SPP event: %d", event);
+    switch (event) {
+        case ESP_SPP_INIT_EVT:
+            // Inicialização concluída
+            break;
+
+        case ESP_SPP_SRV_OPEN_EVT:
+            ESP_LOGI(TAG, "Cliente conectado via Bluetooth SPP!");
+            break;
+
+            case ESP_SPP_DATA_IND_EVT: {
+                char mensagem[256] = {0};
+                int len = param->data_ind.len > 255 ? 255 : param->data_ind.len;
+                memcpy(mensagem, param->data_ind.data, len);
+                mensagem[len] = '\0';
+    
+                ESP_LOGI(TAG, "Dados recebidos (%d bytes): %s", len, mensagem);
+    
+                command_parser_handle(mensagem, param->data_ind.handle);  // <- delega
+                break;
+            }
+    
+            default:
+                ESP_LOGI(TAG, "SPP evento não tratado: %d", event);
+                break;
+    }
 }
 
 void bluetooth_control_init(void) {

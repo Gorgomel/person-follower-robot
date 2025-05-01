@@ -21,8 +21,19 @@ Este guia descreve como preparar, configurar e compilar o projeto `som_seguidor`
 │   ├── src/             # Código fonte do projeto
 │   │   └── main.c
 │   ├── components/
-│   │   └── bluetooth/   # Baseado no exemplo oficial bt_spp_acceptor
-│   │       ├── bt_spp_acceptor_demo_main.c
+│   │   ├── bluetooth/
+│   │   │   ├── bluetooth_control.c
+│   │   │   ├── bluetooth_control.h
+│   │   │   ├── CMakeLists.txt
+│   │   │   ├── Kconfig.projbuild
+│   │   │   └── README.md
+│   │   ├── command_parser/
+│   │   │   ├── command_parser.c
+│   │   │   ├── command_parser.h
+│   │   │   └── CMakeLists.txt
+│   │   └── motor_control/
+│   │       ├── motor_control.c
+│   │       ├── motor_control.h
 │   │       ├── CMakeLists.txt
 │   │       └── Kconfig.projbuild
 │   ├── CMakeLists.txt   # Principal do projeto ESP-IDF
@@ -154,3 +165,32 @@ code .
 ```
 
 Assim o VSCode herda todas as variáveis do ambiente ESP-IDF.
+
+## 📦 CMakeLists.txt dos Componentes
+
+### components/bluetooth/CMakeLists.txt
+```cmake
+idf_component_register(
+    SRCS "bluetooth_control.c"
+    INCLUDE_DIRS "."
+    PRIV_REQUIRES bt command_parser
+)
+```
+
+### components/command_parser/CMakeLists.txt
+```cmake
+idf_component_register(
+    SRCS "command_parser.c"
+    INCLUDE_DIRS "."
+    PRIV_REQUIRES motor_control bt
+)
+```
+
+### components/motor_control/CMakeLists.txt
+```cmake
+idf_component_register(
+    SRCS "motor_control.c"
+    INCLUDE_DIRS "."
+    PRIV_REQUIRES driver
+)
+```
