@@ -1,3 +1,4 @@
+```markdown
 # 🤖 Projeto do Robô Seguidor de Pessoas com Tocador de Música
 
 ## 📌 Objetivo do Projeto
@@ -24,34 +25,41 @@ Além disso, o robô é capaz de tocar música durante o deslocamento.
 ```text
 som_seguidor/
 ├── esp32/
+│   ├── CMakeLists.txt
+│   ├── sdkconfig.defaults
+│   ├── src/
+│   │   ├── main.c               ← Lógica principal do robô
+│   │   └── CMakeLists.txt
 │   ├── components/
-│   │   ├── motor_control/         ← Controle dos motores
-│   │   ├── bt_control/            ← Comandos via Bluetooth
-│   │   ├── ultrasonic_receiver/   ← Recebe sensores do Pico via UART
-│   │   ├── rpi_comm/              ← Recebe comandos do RPi3 via UART
-│   │   └── mode_switch/           ← Alternância entre modos
-│   └── main/                      ← Arquivo main.c com lógica central
+│   │   ├── bluetooth/           ← Baseado no exemplo oficial `bt_spp_acceptor`
+│   │   │   ├── bt_spp_acceptor_demo_main.c
+│   │   │   ├── CMakeLists.txt
+│   │   │   ├── Kconfig.projbuild
+│   │   │   ├── README.md
+│   │   │   └── ESP32_SSP.md
+│   │   └── ... (futuros módulos)
 │
 ├── pico/
-│   ├── ultrasonic_sender.c       ← Leitura de sensores e envio via UART
-│   ├── imu_sender.c              ← (Futuro) Envio de dados da IMU
-│   └── main.c                    ← Loop principal
+│   ├── ultrasonic_sender.c     ← Leitura de sensores e envio via UART
+│   ├── imu_sender.c            ← (Futuro) Envio de dados da IMU
+│   └── main.c                  ← Loop principal
 │
 ├── rpi3/
-│   ├── autonomous_control.py     ← Detecção de pessoa e envio de comandos
-│   ├── image_processing.py       ← Visão computacional com OpenCV
-│   └── uart_interface.py         ← Comunicação serial com ESP32
+│   ├── autonomous_control.py   ← Detecção de pessoa e envio de comandos
+│   ├── image_processing.py     ← Visão computacional com OpenCV
+│   └── uart_interface.py       ← Comunicação serial com ESP32
 │
-└── shared/           ← Estruturas de dados ou mensagens padronizadas
+└── shared/                     ← Estruturas de dados e mensagens padrão
 ```
 
 ---
 
 ## 🔁 Modos de Operação
 
-### 🟦 Modo Manual
-- Controlado via Bluetooth por celular.
-- Interpretado pelo ESP32 e redirecionado aos motores.
+### 🟦 Modo Manual (Bluetooth Classic SPP)
+- Comunicação Bluetooth com smartphone (SPP).
+- Usa o exemplo `bt_spp_acceptor` como base.
+- ESP32 interpreta os comandos e move os motores.
 
 ### 🔴 Modo Autônomo
 - Raspberry Pi 3 detecta uma pessoa usando uma câmera.
@@ -63,17 +71,17 @@ som_seguidor/
 
 ## 📦 Módulos Importantes
 
-| Módulo                | Descrição                             |
-|------------------------|------------------------------------------|
-| `motor_control`        | Controla 4 motores ligados a 2 pontes H  |
-| `bt_control`           | Recebe comandos Bluetooth                |
-| `ultrasonic_receiver`  | Recebe dados do Pico via UART           |
-| `rpi_comm`             | Recebe comandos do RPi3 via UART        |
-| `mode_switch`          | Alterna entre modos com botão/comando   |
+| Módulo                 | Descrição                                     |
+|------------------------|-----------------------------------------------|
+| `bluetooth`            | Comunicação via Bluetooth Classic (SPP)       |
+| `motor_control`        | (Futuro) Controle de 4 motores                |
+| `ultrasonic_receiver`  | (Futuro) Leitura dos sensores via UART        |
+| `rpi_comm`             | (Futuro) Comunicação com Raspberry Pi 3       |
+| `mode_switch`          | (Futuro) Alternância de modo manual/autônomo |
 
 ---
 
-## 🧪 Protocolo de Comunicação
+## 📡 Protocolo de Comunicação
 
 ### UART entre Pico e ESP32
 ```json
@@ -95,11 +103,8 @@ som_seguidor/
 
 ---
 
-## 🎯 Próximos Passos
+## 🧪 Bluetooth (SPP)
 
-1. Criar estrutura de pastas completa com `CMakeLists.txt` para cada módulo.
-2. Implementar `motor_control` e `bt_control` para testes.
-3. Criar alternador de modo com botão físico e UART.
-4. Implementar detecção com câmera no RPi3.
-
----
+- O módulo `bluetooth` é baseado no exemplo `bt_spp_acceptor` da ESP-IDF.
+- Permite receber dados do celular via terminal Bluetooth.
+- Utiliza o protocolo RFCOMM para comunicação serial sem fio.
