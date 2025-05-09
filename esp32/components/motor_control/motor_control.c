@@ -1,6 +1,7 @@
 #include "motor_control.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "motor_control.h"
 
 static const char *TAG = "motor_control";
 
@@ -57,33 +58,65 @@ void backward(void){
 }
 
 void right_strafing(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 1); set_motor(IN2, 0);  // frente esquerda: frente
+    set_motor(IN3, 0); set_motor(IN4, 1);  // frente direita: trás
+    set_motor(IN5, 1); set_motor(IN6, 0);  // trás esquerda: frente
+    set_motor(IN7, 0); set_motor(IN8, 1);  // trás direita: trás
+    ESP_LOGI(TAG, "Strafing para direita");
 }
 
 void left_strafing(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 0); set_motor(IN2, 1);
+    set_motor(IN3, 1); set_motor(IN4, 0);
+    set_motor(IN5, 0); set_motor(IN6, 1);
+    set_motor(IN7, 1); set_motor(IN8, 0);
+    ESP_LOGI(TAG, "Strafing para esquerda");
 }
 
 void diagonal_forward_right(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 1); set_motor(IN2, 0); // frente esquerda: frente
+    set_motor(IN3, 0); set_motor(IN4, 0); // frente direita: parada
+    set_motor(IN5, 0); set_motor(IN6, 0); // traseira esquerda: parada
+    set_motor(IN7, 0); set_motor(IN8, 1); // traseira direita: frente
+    ESP_LOGI(TAG, "Diagonal frente-direita");
 }
 
 void diagonal_forward_left(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 0); set_motor(IN2, 0);
+    set_motor(IN3, 1); set_motor(IN4, 0);
+    set_motor(IN5, 0); set_motor(IN6, 1);
+    set_motor(IN7, 0); set_motor(IN8, 0);
+    ESP_LOGI(TAG, "Diagonal frente-esquerda");
 }
 
 void diagonal_backward_right(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 0); set_motor(IN2, 0);
+    set_motor(IN3, 0); set_motor(IN4, 1);
+    set_motor(IN5, 1); set_motor(IN6, 0);
+    set_motor(IN7, 0); set_motor(IN8, 0);
+    ESP_LOGI(TAG, "Diagonal trás-direita");
 }
 
 void diagonal_backward_left(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 0); set_motor(IN2, 1);
+    set_motor(IN3, 0); set_motor(IN4, 0);
+    set_motor(IN5, 0); set_motor(IN6, 0);
+    set_motor(IN7, 1); set_motor(IN8, 0);
+    ESP_LOGI(TAG, "Diagonal trás-esquerda");
 }
 
 void clockwise_rotation(void){
-    ESP_LOGI(TAG, "");
+    set_motor(IN1, 1); set_motor(IN2, 0);
+    set_motor(IN3, 0); set_motor(IN4, 1);
+    set_motor(IN5, 1); set_motor(IN6, 0);
+    set_motor(IN7, 0); set_motor(IN8, 1);
+    ESP_LOGI(TAG, "Rotação horária");
 }
 
 void counterclockwise_rotation(void){
-    ESP_LOGI(TAG,"");
+    set_motor(IN1, 0); set_motor(IN2, 1);
+    set_motor(IN3, 1); set_motor(IN4, 0);
+    set_motor(IN5, 0); set_motor(IN6, 1);
+    set_motor(IN7, 1); set_motor(IN8, 0);
+    ESP_LOGI(TAG, "Rotação anti-horária");
 }
