@@ -1,25 +1,38 @@
 #ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
 
-// Inicialização
 void motores_init(void);
-void parar_motores(void);
 
-// Movimentos principais
-void mover_frente(void);
-void mover_tras(void);
-void girar_esquerda(void);
-void girar_direita(void);
+void stop_motors(void);
 
-// Movimento lateral
-void andar_lado_esq(void);
-void andar_lado_dir(void);
+//O robô se move para frente em linha reta, sem girar
+void forward(void);
 
-// Diagonais
-void mover_diag_esq_frente(void);
-void mover_diag_dir_frente(void);
+//O robô se move para trás em linha reta, mantendo a orientação.
+void backward(void);
 
-// Teste
-void motor_control_test(void);
+//O robô desliza lateralmente para a direita, sem rotacionar o corpo.
+void right_strafing(void);
+
+//O robô desliza lateralmente para a esquerda, mantendo a orientação.
+void left_strafing(void);
+
+//O robô avança em direção diagonal superior direita.
+void diagonal_forward_right(void);
+
+//O robô avança em direção diagonal superior esquerda.
+void diagonal_forward_left(void);
+
+//O robô recua em direção diagonal inferior direita.
+void diagonal_backward_right(void);
+
+//O robô recua em direção diagonal inferior esquerda.
+void diagonal_backward_left(void);
+
+//O robô gira sobre o próprio eixo no sentido horário.
+void clockwise_rotation(void);
+
+//O robô gira sobre o próprio eixo no sentido anti-horário.
+void counterclockwise_rotation(void);
 
 #endif // MOTOR_CONTROL_H

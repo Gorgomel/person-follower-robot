@@ -29,10 +29,10 @@ void motores_init(void){
         gpio_reset_pin(pinos[i]);
         gpio_set_direction(pinos[i], GPIO_MODE_OUTPUT);
     }
-    parar_motores();
+    stop_motors();
 }
 
-void parar_motores(void){
+void stop_motors(void){
     int pinos[] = {IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8};
     for(int i = 0 ; i < 8 ; i++)
         set_motor(pinos[i], 0);
@@ -40,7 +40,7 @@ void parar_motores(void){
     ESP_LOGI(TAG, "Motores parados");
 }
 
-void mover_frente(void){
+void forward(void){
     set_motor(IN1, 1); set_motor(IN2, 0);
     set_motor(IN3, 1); set_motor(IN4, 0);
     set_motor(IN5, 0); set_motor(IN6, 1);
@@ -48,7 +48,7 @@ void mover_frente(void){
     ESP_LOGI(TAG, "Movendo para frente");
 }
 
-void mover_tras(void){
+void backward(void){
     set_motor(IN1, 0); set_motor(IN2, 1);
     set_motor(IN3, 0); set_motor(IN4, 1);
     set_motor(IN5, 1); set_motor(IN6, 0);
@@ -56,46 +56,34 @@ void mover_tras(void){
     ESP_LOGI(TAG, "Movendo para trás");
 }
 
-void girar_esquerda(void){
-    set_motor(IN1, 0); set_motor(IN2, 1);
-    set_motor(IN3, 1); set_motor(IN4, 0);
-    set_motor(IN5, 1); set_motor(IN6, 0);
-    set_motor(IN7, 0); set_motor(IN8, 1);
-    ESP_LOGI(TAG, "Girando para esquerda");
+void right_strafing(void){
+    ESP_LOGI(TAG, "");
 }
 
-void girar_direita(void){
-    set_motor(IN1, 1); set_motor(IN2, 0);
-    set_motor(IN3, 0); set_motor(IN4, 1);
-    set_motor(IN5, 0); set_motor(IN6, 1);
-    set_motor(IN7, 1); set_motor(IN8, 0);
-    ESP_LOGI(TAG, "Girando para direita");
+void left_strafing(void){
+    ESP_LOGI(TAG, "");
 }
 
-void andar_lado_esq(void){
-    set_motor(IN1, 0); set_motor(IN2, 1);
-    set_motor(IN3, 1); set_motor(IN4, 0);
-    set_motor(IN5, 0); set_motor(IN6, 1);
-    set_motor(IN7, 1); set_motor(IN8, 0);
-    ESP_LOGI(TAG, "Andando lateral esquerda");
+void diagonal_forward_right(void){
+    ESP_LOGI(TAG, "");
 }
 
-void andar_lado_dir(void){
-    set_motor(IN1, 1); set_motor(IN2, 0);
-    set_motor(IN3, 0); set_motor(IN4, 1);
-    set_motor(IN5, 1); set_motor(IN6, 0);
-    set_motor(IN7, 0); set_motor(IN8, 1);
-    ESP_LOGI(TAG, "Andando lateral direita");
+void diagonal_forward_left(void){
+    ESP_LOGI(TAG, "");
 }
 
-void mover_diag_esq_frente(void){
-    set_motor(IN3, 1); set_motor(IN4, 0);
-    set_motor(IN5, 0); set_motor(IN6, 1);
-    ESP_LOGI(TAG, "Movendo diagonal esquerda frente");
+void diagonal_backward_right(void){
+    ESP_LOGI(TAG, "");
 }
 
-void mover_diag_dir_frente(void){
-    set_motor(IN1, 1); set_motor(IN2, 0);
-    set_motor(IN8, 1); set_motor(IN7, 0);
-    ESP_LOGI(TAG, "Movendo diagonal direita frente");
+void diagonal_backward_left(void){
+    ESP_LOGI(TAG, "");
+}
+
+void clockwise_rotation(void){
+    ESP_LOGI(TAG, "");
+}
+
+void counterclockwise_rotation(void){
+    ESP_LOGI(TAG,"");
 }
