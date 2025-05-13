@@ -19,7 +19,7 @@ static const char *TAG = "MAIN";
 
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Starting som_seguidor project...");
+    ESP_LOGI(TAG, "System initialization complete. Current mode: %d", get_operation_mode());
 
     // Define modo inicial
     set_operation_mode(MODE_STOPPED);
@@ -37,6 +37,8 @@ void app_main(void)
         return;
     }
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    
     // Inicializações
     uart_comm_init();
     motor_control_init();
