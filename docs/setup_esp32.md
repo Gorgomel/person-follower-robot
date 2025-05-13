@@ -17,47 +17,61 @@ Este guia descreve como preparar, configurar e compilar o projeto `som_seguidor`
 
 ```
 ~/esp/som_seguidor/
-├── esp32/               # Código principal para ESP32
-│   ├── src/             # Código fonte do projeto
+├── esp32/                         # Projeto principal do ESP32
+│   ├── src/                       # Arquivo principal com app_main()
 │   │   └── main.c
-│   ├── components/
-│   │   ├── bluetooth/
+│   ├── components/                # Componentes customizados
+│   │   ├── bluetooth/             # Módulo Bluetooth SPP
 │   │   │   ├── bluetooth_control.c
 │   │   │   ├── bluetooth_control.h
 │   │   │   ├── CMakeLists.txt
-│   │   │   ├── Kconfig.projbuild
-│   │   │   └── README.md
-│   │   ├── command_parser/
+│   │   │   └── Kconfig.projbuild
+│   │   ├── command_parser/        # Interpreta comandos recebidos
 │   │   │   ├── command_parser.c
 │   │   │   ├── command_parser.h
 │   │   │   └── CMakeLists.txt
-│   │   └── motor_control/
-│   │       ├── motor_control.c
-│   │       ├── motor_control.h
-│   │       ├── CMakeLists.txt
-│   │       └── Kconfig.projbuild
-│   ├── CMakeLists.txt   # Principal do projeto ESP-IDF
-│   └── sdkconfig        # Gerado via menuconfig
-├── pico/                # (futuro) Raspberry Pi Pico
-├── rpi3/                # (futuro) Raspberry Pi 3
-├── shared/              # Recursos comuns aos módulos
-└── docs/
-    └── setup_esp32.md   # Este documento
+│   │   ├── motor_control/         # Controle das rodas via GPIOs
+│   │   │   ├── motor_control.c
+│   │   │   ├── motor_control.h
+│   │   │   ├── CMakeLists.txt
+│   │   │   └── Kconfig.projbuild
+│   │   ├── uart_comm/             # Comunicação serial com o Raspberry Pi Pico
+│   │   │   ├── uart_comm.c
+│   │   │   ├── uart_comm.h
+│   │   │   └── CMakeLists.txt
+│   │   ├── operation_mode/        # Enum e controle de modo (manual/autônomo)
+│   │   │   ├── operation_mode.c
+│   │   │   ├── operation_mode.h
+│   │   │   └── CMakeLists.txt
+│   │   ├── sensor/                # Leitura e simulação de sensores
+│   │   │   ├── sensor_task.c
+│   │   │   ├── sensor_task.h
+│   │   │   └── CMakeLists.txt
+│   │   └── pid/                   # Controle PID da velocidade
+│   │       ├── pid_control.c
+│   │       ├── pid_control.h
+│   │       └── CMakeLists.txt
+│   ├── CMakeLists.txt             # Projeto raiz ESP-IDF
+│   └── sdkconfig                  # Configurações do menuconfig
+├── pico/                          # Código do Raspberry Pi Pico (em C)
+├── rpi3/                          # Código do Raspberry Pi 3 (em Python)
+├── shared/                        # Arquivos compartilhados (ex: uart, mensagens)
+├── docs/                          # Documentação técnica
+│   └── setup_esp32.md
+└── README.md                      # Apresentação geral do repositório
 ```
-
----
 
 ## 🛠️ Ferramentas e Versões
 
-| Ferramenta              | Versão       | Local                        |
-|-------------------------|--------------|------------------------------|
-| ESP-IDF                 | v5.4.1       | `~/esp/esp-idf`              |
-| VSCode                  | Atualizado   | Windows                      |
-| Python                  | 3.10.12       | `/usr/bin/python`            |
-| Xtensa Toolchain (ESP)  | 14.2.0       | `~/.espressif/tools`         |
-| Extensões VSCode        | ESP-IDF, Remote - WSL | VSCode Marketplace |
-
----
+| Ferramenta               | Versão       | Local                               |
+|--------------------------|--------------|--------------------------------------|
+| **ESP-IDF**              | v5.4.1       | `~/esp/esp-idf`                      |
+| **VSCode**               | Atualizado   | Windows 11 + WSL2                    |
+| **Python**               | 3.10.12      | `/usr/bin/python`                   |
+| **Xtensa Toolchain**     | 14.2.0       | `~/.espressif/tools/xtensa-esp-elf/`|
+| **Extensões VSCode**     | ESP-IDF, Remote - WSL | VSCode Marketplace       |
+| **Sistema Operacional**  | Ubuntu 22.04 (WSL2) | Dentro do Windows 11         |
+| **USB Redirecionado**    | `usbipd-win` | Instalado no Windows (via winget)    |
 
 ## ⚙️ Instalação do ESP-IDF
 
@@ -70,30 +84,23 @@ source export.sh
 echo 'source ~/esp/esp-idf/export.sh' >> ~/.bashrc
 ```
 
----
-
 ## 🔌 Encaminhamento da porta USB no WSL2
 
-Para conectar o ESP32 via USB no WSL:
-
-### No PowerShell (Admin):
+### No Windows (PowerShell como Admin):
 ```powershell
-winget install usbipd-win.usbipd-win
+winget install usbipd-win
+usbipd list
 usbipd bind --busid 2-3 --persist
 usbipd attach --wsl --busid 2-3
 ```
 
-### No WSL:
+### No WSL2:
 ```bash
 sudo modprobe cp210x
 sudo chmod a+rw /dev/ttyUSB0
 ```
 
----
-
 ## 🧱 Configuração do Projeto ESP32
-
-### Inicializar projeto
 
 ```bash
 cd ~/esp/som_seguidor/esp32
@@ -111,38 +118,18 @@ idf.py menuconfig
   - [✓] Classic Bluetooth
   - [✓] SPP (Serial Port Profile)
 
----
+## 📦 Organização dos CMakeLists.txt
 
-## 🧩 CMakeLists.txt principal (esp32/)
-
-```cmake
-cmake_minimum_required(VERSION 3.16)
-include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(som_seguidor)
-```
-
-## 📦 src/CMakeLists.txt
-
-```cmake
-idf_component_register(
-    SRCS "main.c"
-    INCLUDE_DIRS "."
-    PRIV_REQUIRES bt nvs_flash log
-)
-```
-
----
+Cada componente define seu `CMakeLists.txt` com `idf_component_register`, informando fontes (`SRCS`), headers (`INCLUDE_DIRS`) e dependências (`PRIV_REQUIRES`). O projeto principal (`esp32/CMakeLists.txt`) define o alvo geral e carrega os componentes.
 
 ## 💡 Bluetooth Classic no estilo oficial
 
-Você pode copiar a lógica do arquivo `bt_spp_acceptor_demo_main.c` para sua aplicação ou integrá-lo modularmente via `components/bluetooth`.
+Utiliza o perfil SPP (Serial Port Profile), baseado na demo oficial `bt_spp_acceptor_demo_main.c`, porém com arquitetura modular:
 
-### Recomendações:
-
-- Use `esp_bt_controller_enable(ESP_BT_MODE_BTDM)` em vez de `ESP_BT_MODE_CLASSIC_BT` para evitar erros com Dual-mode.
-- Ative o NVS com `nvs_flash_init()` antes de qualquer função BT.
-
----
+- ✅ `esp_bt_controller_enable(ESP_BT_MODE_BTDM)` para compatibilidade BLE + Classic.
+- ✅ `nvs_flash_init()` executado antes do uso do BT.
+- ✅ Callbacks `esp_bt_gap_cb` e `esp_spp_cb` registrados.
+- ✅ Fila `bt_cmd_queue` usada para envio de comandos via Bluetooth para a task `bt_cmd_task`.
 
 ## 🧪 Compilar, flashar e monitorar
 
@@ -152,62 +139,17 @@ idf.py build
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-Para sair do monitor: `Ctrl + ]`
-
----
+> Para sair do monitor: `Ctrl + ]`
 
 ## 📎 Dicas finais
 
-### Para abrir corretamente no VSCode:
 ```bash
 cd ~/esp/som_seguidor/esp32
 code .
-```
-
 source ~/esp/esp-idf/export.sh
-
-
-Assim o VSCode herda todas as variáveis do ambiente ESP-IDF.
-
-## 📦 CMakeLists.txt dos Componentes
-
-### components/bluetooth/CMakeLists.txt
-```cmake
-idf_component_register(
-    SRCS "bluetooth_control.c"
-    INCLUDE_DIRS "."
-    PRIV_REQUIRES bt command_parser
-)
 ```
 
-### components/command_parser/CMakeLists.txt
-```cmake
-idf_component_register(
-    SRCS "command_parser.c"
-    INCLUDE_DIRS "."
-    PRIV_REQUIRES motor_control bt
-)
-```
-
-### components/motor_control/CMakeLists.txt
-```cmake
-idf_component_register(
-    SRCS "motor_control.c"
-    INCLUDE_DIRS "."
-    PRIV_REQUIRES driver
-)
-```
-
-
-Perfeito. Aqui está o conteúdo pronto para ser inserido no final do arquivo `setup_esp32.md`, já formatado em Markdown:
-
----
-
-## Estrutura de Execução com FreeRTOS
-
-O projeto `som_seguidor` utiliza o sistema operacional de tempo real FreeRTOS como núcleo da arquitetura multitarefa no ESP32. A seguir, detalha-se a estrutura das tarefas, filas e módulos integrados.
-
-### Organização de Tarefas
+## 🧵 Estrutura de Execução com FreeRTOS
 
 | Tarefa        | Núcleo | Prioridade | Stack | Descrição                                                                                                                          |
 | ------------- | ------ | ---------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -216,38 +158,24 @@ O projeto `som_seguidor` utiliza o sistema operacional de tempo real FreeRTOS co
 | `pid_task`    | Core 1 | 3          | 4096  | Realiza o controle de velocidade com base nos dados da fila de sensores. Usa `vTaskDelayUntil()` para garantir frequência estável. |
 | `bt_cmd_task` | Core 0 | 5          | 4096  | Recebe comandos via Bluetooth (SPP), interpreta e despacha para os motores. Responsável pela operação manual.                      |
 
-### Estrutura de Filas
+### Filas
 
-* `uart_raw_queue`: fila circular (`QueueHandle_t`) de 4 entradas, usada para transmitir mensagens cruas da UART para o processamento.
-* `sensor_data_queue`: fila com buffer para estruturas do tipo `sensor_data_t`, usada para troca de dados entre sensores e o controle PID.
-* `bt_cmd_queue`: fila interna do módulo Bluetooth usada para armazenar comandos recebidos via SPP antes do despacho.
+- `uart_raw_queue`: recebe bytes crus da UART.
+- `sensor_data_queue`: recebe structs do tipo `sensor_data_t`.
+- `bt_cmd_queue`: recebe comandos Bluetooth para despacho.
 
-### Modo de Operação
+### Modo de Operação (`modo_t`)
 
-Foi definido um `enum modo_t` com três modos de operação:
+- `MODE_STOPPED`: robô parado.
+- `MODE_AUTONOMOUS`: modo PID baseado em sensores.
+- `MODE_MANUAL`: comandos via Bluetooth controlam o robô.
 
-* `MODE_STOPPED`: estado neutro, motores parados.
-* `MODE_AUTONOMOUS`: ativado pelo `pid_task` para controlar a velocidade com base nos sensores.
-* `MODE_MANUAL`: ativado via Bluetooth, permite controle direto dos motores com comandos como frente, ré, giros, diagonais, etc.
+### Resumo dos Módulos
 
-A função `set_operation_mode()` permite alterar o estado global da operação. Essa variável é protegida por funções getter/setter para controle centralizado.
+- **UART**: comunicação com Raspberry Pi Pico via fila.
+- **Bluetooth**: controle manual via SPP (modo texto ou numérico com `atoi`).
+- **Motores**: controlados via `motor_control` com funções encapsuladas.
+- **PID**: controle periódico com base na distância.
+- **Watchdog**: planejado para fase futura de estabilidade.
 
-### Comunicação Serial (UART)
-
-A UART é configurada para receber dados do Raspberry Pi Pico. A comunicação é baseada em interrupções e armazenamento dos dados brutos na fila `uart_raw_queue`, que serão utilizados posteriormente para análises ou decisões de navegação.
-
-### Bluetooth
-
-Utiliza o perfil SPP clássico com callbacks `esp_spp_cb()` e `esp_bt_gap_cb()`. A task `bt_cmd_task` interpreta comandos numéricos (via `atoi`) para movimentação do robô, como frente, ré, strafing, diagonais e rotações.
-
-### Controle de Motores
-
-O módulo `motor_control` abstrai os comandos de movimentação, permitindo chamadas como `forward()`, `backward()`, `left_strafing()`, etc. Cada uma dessas funções escreve diretamente nos GPIOs conectados às pontes H.
-
-### Controle PID
-
-O controle proporcional-integral-derivativo (PID) é simulado com base em dados de sensores e executado periodicamente com `vTaskDelayUntil()` para garantir tempo constante entre iterações, importante para estabilidade do sistema.
-
-### Watchdog
-
-O watchdog por software será integrado posteriormente, quando o sistema estiver completamente estável. Será utilizado para detectar travamentos nas tarefas críticas.
+---
