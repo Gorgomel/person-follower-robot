@@ -13,10 +13,16 @@ Além disso, o robô é capaz de tocar música durante o deslocamento.
 ## 🧱 Arquitetura Geral
 
 ```text
-[Sensores Ultrassônicos / IMU] → Raspberry Pi Pico → UART → ESP32 ← UART / Bluetooth ← Raspberry Pi 3 / Smartphone
-                                                                  ↓
-                                                        Controle de Motores (2 Pontes H)
-```
+[Sensores (Ultrassom/IMU)] → Pico → UART → ESP32 ← UART / Bluetooth ← RPi3 / Smartphone
+                                                      ↓
+                                            [FreeRTOS com 4 Tarefas]
+                                                      ↓
+                              ┌────────────┬────────────┬────────────┬────────────┐
+                              │ sensor_task│ pid_task   │ bt_task    │ uart_task  │
+                              └────────────┴────────────┴────────────┴────────────┘
+                                                      ↓
+                                            Controle de 4 Motores (2 Pontes H)
+
 
 ---
 
@@ -108,3 +114,17 @@ som_seguidor/
 - O módulo `bluetooth` é baseado no exemplo `bt_spp_acceptor` da ESP-IDF.
 - Permite receber dados do celular via terminal Bluetooth.
 - Utiliza o protocolo RFCOMM para comunicação serial sem fio.
+
+### 📲 Comandos Manuais por Bluetooth
+
+| Comando | Ação                      |
+|--------:|---------------------------|
+| `1`     | Frente                    |
+| `2`     | Ré                        |
+| `3`     | Parar                     |
+| `4`     | Deslizar para Direita     |
+| `5`     | Deslizar para Esquerda    |
+| `6`     | Diagonal Frente-Direita   |
+| `7`     | Diagonal Frente-Esquerda  |
+| `8`     | Diagonal Trás-Direita     |
+| `9`     | Diagonal Trás-Esquerda    |
