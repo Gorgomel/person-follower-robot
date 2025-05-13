@@ -1,10 +1,9 @@
-// esp32/src/tasks.h
 #pragma once
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "esp_err.h"
-#include "esp_spp_api.h"  // para uint32_t handle
+#include "esp_spp_api.h"
 
 #define BT_CMD_MAX_LEN  64
 
@@ -13,8 +12,11 @@ typedef struct {
     uint32_t handle;
 } bt_cmd_t;
 
-// Esta fila será criada em main e usada no callback e na tarefa:
+// Fila Bluetooth
 extern QueueHandle_t bt_cmd_queue;
 
-// Tarefa que processa comandos Bluetooth (e futuramente sensores)
-void movement_task(void *param);
+// Tarefa que processa os comandos da fila
+void cmd_task(void *param);
+
+void pid_task(void *param);
+

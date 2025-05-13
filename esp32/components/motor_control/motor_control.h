@@ -1,7 +1,7 @@
 #ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
 
-void motores_init(void);
+void motor_control_init(void);
 
 void stop_motors(void);
 

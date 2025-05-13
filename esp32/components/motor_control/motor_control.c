@@ -24,7 +24,7 @@ static void set_motor(int pin, int level){
     gpio_set_level(pin, level);
 }
 
-void motores_init(void){
+void motor_control_init(void){
     int pinos[] = {IN1, IN2, IN3, IN4, IN5, IN6, IN7, IN8};
     for(int i = 0 ; i < 8 ; i++){
         gpio_reset_pin(pinos[i]);

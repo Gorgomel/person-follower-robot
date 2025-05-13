@@ -6,8 +6,8 @@
 #include "esp_gap_bt_api.h"
 #include "esp_spp_api.h"
 
-
 // Função pública para tratar comandos recebidos via Bluetooth
 esp_err_t command_parser_handle(const char *mensagem, uint32_t handle);
+void command_parser_task(void *pvParameters);  // <- ADICIONADO
 
 #endif // COMMAND_PARSER_H
